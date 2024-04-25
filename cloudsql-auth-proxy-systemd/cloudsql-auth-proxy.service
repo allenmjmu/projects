@@ -1,0 +1,11 @@
+[Unit]
+Description=Cloud SQL Auth Proxy
+
+[Service]
+Type=simple
+WorkingDirectory=/root
+ExecStart=/home/<WorkingDirectory>/cloud-sql-auth-proxy <GCP-Project>:<region>:<database-name> -c /home/<WorkingDirectory>/temp.json
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
