@@ -1,0 +1,102 @@
+# This deployment includes a sidecar deployment of Google CloudSQL Auth Proxy
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgbouncer 
+  labels:
+    tier: database
+spec:
+  selector:
+    matchLabels:
+      tier: database
+  replicas: 2
+  minReadySeconds: 20
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        tier: database
+    spec:
+      imagePullSecrets:
+        - name: <secret-store>
+      containers:
+      - name: pgbouncer 
+        image: <Image>
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 6432
+          protocol: TCP
+        envFrom:
+          - configMapRef:
+              name: pgbouncer-config
+        env:
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: <credentials file>
+                key: username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: <credentials file>
+                key: password 
+          - name: PGB_MD5
+            valueFrom:
+              secretKeyRef:
+                name: <credentials file>
+                key: pgb-md5-hash
+        readinessProbe:
+          tcpSocket:
+            port: 6432
+          initialDelaySeconds: 20
+          failureThreshold: 6
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 6432
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 100m
+            memory: 300m
+          limits:
+            cpu: "500m"
+            memory: "600m"
+
+# CloudSQL Auth Proxy Sidecar Container
+      - name: cloudsql-proxy
+        image: gcr.io/cloudsql-docker/gce-proxy:1.33.14
+        command:
+          [
+            '/cloud_sql_proxy',
+            '-instances=$(CSP_INSTANCE_NAME)=tcp:5432',
+            /-credential_file=/secrets/cloudsql/credentials.json,
+          ]
+        securityContext:
+          runAsNonRoot: true
+        env:
+          - name: CSP_INSTANCE_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: pgbouncer-config
+                key:  CSP_INSTANCE_NAME
+        resources:
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+          limits:
+            cpu:  "2" 
+            memory: "3Gi"
+        volumeMounts:
+          - mountPath: <secret-name>
+            name: <secret-name>
+            readOnly: true
+      volumes:
+        - name: <secret-name>
+          secret:
+            secretName: <secret name> 
