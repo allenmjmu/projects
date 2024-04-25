@@ -1,0 +1,22 @@
+# See PgBouncer Documentation for Configs
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: <server>-env-config
+data:
+  NODE_ENV: <env>
+  PORT: <port>
+  BUCKET_NAME: <value>
+  CORS_WHITELIST_DOMAIN: <FQDN>,<server>.default.svc.cluster.local.<port>,localhost
+  CLOUD_PROVIDER: GCP 
+  CLOUD_REGION: "" 
+  GOOGLE_STORAGE_KEY_FILE: /secrets/gcpstorage/storage.json
+  PG_DATABASE: <db-name>
+  PG_HOST: <pgbouncer-service>
+  PG_MAX_POOLSIZE: "<#>"
+  PG_MIN_POOLSIZE: "<#>"
+  PG_PORT: "6432"
+  PG_USER: <unsername>
+  REDIS_URI: redis://<ip-address>:6379
+  ESP_API_SERVICE: <api>.endpoints.<gcp-project>.cloud.goog
+  ISTIO_FLAG: "true"
