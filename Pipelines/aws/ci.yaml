@@ -1,0 +1,92 @@
+trigger:
+  branches:
+    include:
+      - development 
+      
+pr:
+  branches:
+    include:
+      - development 
+      
+pool: <agent pool>
+
+resources:
+  repositories: 
+    repository: <template-repo>
+    type: git
+    name: <ado-project>/<repo>
+    ref: main
+
+parameters:
+  - name: <Checkbox>
+    type: boolean
+    default: false
+    values:
+      - false
+      - true
+extends: # used for templates
+  template: <path>@<template-repo>
+  parameters:
+    cdStages:
+      - name: aws
+        dependsOn:
+        - Build
+    app:
+      id: <app-name>
+      rootPath: "."
+    version:
+      custom:
+        full: $(Build.SourceBranchName)-$(Build.BuildNumber)
+        short: ${{variables['Build.SourceBranchName']}}
+    variables;
+    - group: <variables in ADO Library>
+      name: DOCKER_BUILDKIT
+        version: 1
+    
+    build:
+      type: docker 
+      registry: <artifactory path>
+      image: <image name>
+      dockerfile: '**/Dockerfile'
+      buildDockerfile: build.Dockerfile
+      dockerBuildArguments: '--build-arg SONAR_SCANNER_OPTS="$(SONAR_SCANNER)"'
+      variables:
+        - group: <variables group>
+      beforeBuild:
+        - checkout: self 
+        - bash: |
+                ls && pwd
+                npm cache clean --force
+        - pwsh: |
+            New-Item -Path . -Name ".npmrc" -ItemType "file" -Value "<registry path>" `n _auth = $(NPM_Token)`n email=<email`n always-auth = true"
+            Get-Connect -Path ./.npmrc
+          displayName: 'PS Set NPM Token'
+          workingDirectory: .
+
+    scan:
+      secretDetection:
+        report: gitleaks.com
+        path: $(Build.SourceDirectory)
+
+    deploy:
+      aws:
+        conditions: contains(variables['BUILD_SOURCE_BRANCH'],'heads'development')
+        jobs:
+        - type: k8s
+          deployName: <app-name>
+          environment: <k8s folder>
+          namespaces: <namespace>
+          serviceConnection: <ADO service connection name>
+          postDeploy:
+          - ${{ if eq(parameters.<Checkbox>, 'true') }}:
+            - task: Kubernetes@1
+              inputs:
+                connectionType: 'Kubernetes Service Connection'
+                kubernetsServiceEndpoint: <Ado service connection name>
+                command: 'login'
+              condition: succeeded()
+            - task: Bash@3
+              displayName: 'kubectl exec <command>'
+              inputs:
+                filePath: <path to script>
+                arguments: <command in script>

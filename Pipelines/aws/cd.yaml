@@ -1,0 +1,19 @@
+trigger: none
+pr: none
+pool: <agent pool>
+
+resources:
+  repositories:
+  - repository: <template repo>
+    type: git
+    name: <ADO project/path to repo>
+    ref: main
+
+parameters:
+  - name: App_version
+    type: string
+    default:
+     
+extends:
+  template: <path to template@<template repo>
+  parameters:
