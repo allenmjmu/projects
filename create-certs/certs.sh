@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "In what environment are you working (dev, qa, perf, stage, prod, on-prem)?"
+echo "In what environment are you working (dev, qa, uat, stage, prod, perf)?"
 
 read ENVIRONMENT
 
@@ -9,7 +9,7 @@ if [ "$ENVIRONMENT" == "dev" ]; then
 elif [ "$ENVIRONMENT" == "qa" ]; then
     ENVIRONMENT_DOMAIN_NAME=<FQDN>
 
-elif [ "$ENVIRONMENT" == "perf" ]; then
+elif [ "$ENVIRONMENT" == "uat" ]; then
     ENVIRONMENT_DOMAIN_NAME=<FQDN>
 
 elif [ "$ENVIRONMENT" == "stage" ]; then
@@ -18,7 +18,7 @@ elif [ "$ENVIRONMENT" == "stage" ]; then
 elif [ "$ENVIRONMENT" == "prod" ]; then
     ENVIRONMENT_DOMAIN_NAME=<FQDN>
 
-elif [ "$ENVIRONMENT" == "on-prem" ]; then
+elif [ "$ENVIRONMENT" == "perf" ]; then
     ENVIRONMENT_DOMAIN_NAME=<FQDN>
 fi
 
