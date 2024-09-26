@@ -1,0 +1,46 @@
+# This example shows a deploy all pipeline for multiple services
+trigger: 
+- none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+- name: 'RELEASE_NUMBER'
+  value: '<value>'
+
+- name: '<service1>'
+  value: '<app_version>'
+
+- name: '<service2>'
+  value: '<app_version>'
+
+- name: '<service3>'
+  value: '<app_version>'
+
+- name: '<service4>'
+  value: '<app_version>'  
+
+- group: <ado variables group>
+
+steps:
+- bash: echo $token | az devops login --organization <url for organization>
+  displayName: 'login using system access token'
+  env:
+   token: $(System.AccessToken)
+
+# Service1 Deploy
+- bash: az pipelines run --id <pipeline id> --parameters SERVICE_NAME=service1 ENVIRONMENT=qa APP_VERSION=$(<service1>) RELEASE_NUMBER=$(RELEASE_NUMBER) --org <url for organization> --project <name of project in ADO>
+  displayName: '<service1> deploy'
+
+# Service2 Deploy
+- bash: az pipelines run --id <pipeline id> --parameters SERVICE_NAME=service2 ENVIRONMENT=qa APP_VERSION=$(<service2>) RELEASE_NUMBER=$(RELEASE_NUMBER) --org <url for organization> --project <name of project in ADO>
+  displayName: '<service2> deploy'
+
+# Service3 Deploy
+- bash: az pipelines run --id <pipeline id> --parameters SERVICE_NAME=service3 ENVIRONMENT=qa APP_VERSION=$(<service3>) RELEASE_NUMBER=$(RELEASE_NUMBER) --org <url for organization> --project <name of project in ADO>
+  displayName: '<service3> deploy'
+
+# Service4 Deploy
+- bash: az pipelines run --id <pipeline id> --parameters SERVICE_NAME=service4 ENVIRONMENT=qa APP_VERSION=$(<service4>) RELEASE_NUMBER=$(RELEASE_NUMBER) --org <url for organization> --project <name of project in ADO>
+  displayName: '<service4> deploy'

@@ -13,7 +13,51 @@ parameters:
   - name: App_version
     type: string
     default:
+  - name: DATA_MIGRATION
+    type: boolean
+    default: false
+    values: 
+      - false
+      - true
+  - name: environment
+    type: string
+    default: dev
+    values:
+      - dev
+      - qa
+      - uat
+      - stage 
+      - prod
      
 extends:
   template: <path to template@<template repo>
   parameters:
+    cdStages:
+      - name: dev 
+        dependsOn:
+        - Build
+      - name: qa
+        dependsOn:
+        - Build
+      - name: uat
+        dependsOn:
+        - Build
+      - name: stage 
+        dependsOn:
+        - Build
+      - name: prod
+        dependsOn:
+        - Build
+    app:
+      id: <app-name>
+      rootPath: "."
+    version:
+      custom:
+        full: $(Build.SourceBranchName)-$(Build.BuildNumber)
+        short: <app-name>
+    variables:
+    - group: <variables in ADO Library>
+
+    build:
+      type: dummy
+      

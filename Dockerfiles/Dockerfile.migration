@@ -1,0 +1,41 @@
+FROM python:3.12-alpine
+
+# Pass build arguments into the Docker container
+ARG hostname
+ARG port
+ARG dbname
+ARG username
+ARG password
+
+# Use the build arguments to configure the application with the Dockerfile
+ENV PGHOST=$hostname 
+ENV PGPORT=$port 
+ENV DBNAME=$dbname 
+ENV PGUSER=$username 
+ENV PGPASSWORD=$password 
+
+# Set the working directory
+WORKDIR /app 
+
+# Set the package repository repo
+RUN echo "http://dl-cdn.alpinelinux.com/alpine/latest-stable/main" > /etc/apk/repositories
+
+# Install system dependencies and create a virtual environment
+RUN apk add --no-cache postgresql-dev gcc musl-dev 
+RUN python -m venv venv 
+ENV PATH="/venv/bin:$PATH"
+
+# Upgrade pip and install dependencies
+RUN pip install --upgrade setuptools virtualenv pip wheel pyscopg2
+RUN pip freeze > requiremenets.txt
+RUN pip install -Ur requiremenets.txt
+RUN pip list
+
+# Copy the rest of the application code
+COPY . .
+
+# Run the migration
+RUN ls -alrt
+RUN chmod 755 db/run_migration.py 
+RUN cd /app/db && ls -alrt && \
+    python run_migrations.py ${hostname} ${username} ${passwrod}

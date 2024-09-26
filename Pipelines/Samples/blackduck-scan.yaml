@@ -1,0 +1,65 @@
+pool:
+  name: $(pool)
+trigger:
+  branches:
+   include:
+   - master
+   - development
+parameters:
+- name: GITREPO
+  type: object
+  defaults:
+  - REPO1
+  - REPO2
+
+variables:
+- group: <ado variables group>
+
+schedules:
+- cron: "0 15 * * 6"
+  displayName: Blackduck Scan Saturdays 3 UTC
+  branches:
+   include:
+   - master
+   - development
+  always: true
+
+resources:
+  repositories:
+  - repository: <repo1 name>
+    type: github
+    endpoint: <ado service connection>
+    name: <path to repo>
+    ref: refs/heads/master
+  - repository: <repo2 name>
+    type: github
+    endpoint: <ado service connection>
+    name: <path to repo>
+    ref: refs/heads/master
+
+jobs:
+- job: <name>
+  workspace:
+   clean: all
+  steps:
+  - checkout: <repo1 name>
+    path: 's/<repo1 name>'
+  - task: SynopsysDetectTask@9
+    displayName: '<name> - Blackduck Scan'
+    inputs:
+      BlackDuckService: '<ado service connection for blackduck>'
+      DetectVersion: 'latest'
+      DetectArguments: |
+        --detect.project.name=<global project name>
+        --detect.project.version.name<service1 name>
+        --detect.source.path=$(build.SourcesDirectory)/<path to service1>
+  - task: SynopsysDetectTask@9
+    displayName: '<name> - Blackduck Scan'
+    inputs:
+      BlackDuckService: '<ado service connection for blackduck>'
+      DetectVersion: 'latest'
+      DetectArguments: |
+        --detect.project.name=<global project name>
+        --detect.project.version.name<service2 name>
+        --detect.source.path=$(build.SourcesDirectory)/<path to service2>
+      
