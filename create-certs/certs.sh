@@ -41,10 +41,5 @@ openssl req -new -newkey rsa:2048 -nodes -keyout $ENVIRONMENT-<product-name>.key
 
 cat $ENVIRONMENT-<product-name>.csr
 
-echo "Copy key to your clipboard"
-echo "Paste into ServiceNow Link"
-echo "<SNOW link>"
-echo "2024 WBS Code - <billing code>"
-
 # to read the key, use the following command:
 # openssl req -text -noout -verify $ENVIRONMENT-<product-name>.csr
