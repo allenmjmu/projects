@@ -38,3 +38,7 @@ This is not a script, but a reminder of how to encode/decode in base64
 ## pull-all-ai.sh
 
 This is a sample script created by ChatGPT for pulling code from the "master" branch.
+
+## update-time-tracker.py
+
+This is a script that I use to automate updating my time-tracking.xlsx file. My manager asked us to complete a standardized time-tracker in addition to our ticketing system to track other activities such as meetings, standups, syncs, etc. throughout the week. Updating a new worksheet and adjusting the dates was a manual task that I automated with a python script. The script, adds a new workbook name, copies the existing workbook, and adjusts the dates. The only parameter that I feed the script is the new & old workbook names. 
