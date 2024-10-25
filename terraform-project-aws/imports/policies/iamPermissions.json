@@ -1,0 +1,31 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "NotAction": [
+                "iam:*",
+                "organization:*",
+                "account:*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateServiceLinkedRole",
+                "iam:DeleteSErviceLinkedRole",
+                "iam:ListRoles",
+                "iam:ListRolePolicies",
+                "iam:GetPolicy",
+                "iam:GetRole",
+                "iam:ListAttachedRolePolicies",
+                "organizations:DescribeOrganization",
+                "account:ListRegionas",
+                "account:GetAccountInformation",
+                "iam:GetPolicyVersion"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
