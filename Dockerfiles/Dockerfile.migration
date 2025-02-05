@@ -7,35 +7,25 @@ ARG dbname
 ARG username
 ARG password
 
-# Use the build arguments to configure the application with the Dockerfile
-ENV PGHOST=$hostname 
-ENV PGPORT=$port 
-ENV DBNAME=$dbname 
-ENV PGUSER=$username 
-ENV PGPASSWORD=$password 
+# Set environment variables using build args
+ENV PGHOST=$hostname \
+    PGPORT=$port \
+    DBNAME=$dbname \
+    PGUSER=$username \
+    PGPASSWORD=$password \
+    PATH="/venv/bin:$PATH"
 
-# Set the working directory
-WORKDIR /app 
+# Set working directory
+WORKDIR /app
 
-# Set the package repository repo
-RUN echo "http://dl-cdn.alpinelinux.com/alpine/latest-stable/main" > /etc/apk/repositories
+# Install dependencies and create virtual environment in one layer
+RUN apk add --no-cache postgresql-dev gcc musl-dev && \
+    python -m venv venv && \
+    pip install --upgrade pip setuptools wheel virtualenv psycopg2
 
-# Install system dependencies and create a virtual environment
-RUN apk add --no-cache postgresql-dev gcc musl-dev 
-RUN python -m venv venv 
-ENV PATH="/venv/bin:$PATH"
-
-# Upgrade pip and install dependencies
-RUN pip install --upgrade setuptools virtualenv pip wheel pyscopg2
-RUN pip freeze > requiremenets.txt
-RUN pip install -Ur requiremenets.txt
-RUN pip list
-
-# Copy the rest of the application code
+# Copy the application code
 COPY . .
 
-# Run the migration
-RUN ls -alrt
-RUN chmod 755 db/run_migration.py 
-RUN cd /app/db && ls -alrt && \
-    python run_migrations.py ${hostname} ${username} ${passwrod}
+# Run migration script
+RUN chmod 755 db/run_migration.py && \
+    cd db && python run_migration.py $hostname $username $password
